@@ -5,51 +5,52 @@ class TicTacToe:
     SYMBOLS = ('X', 'O')
 
     def __init__(self, size):
-        self.board = [[' ' for _ in range(size)] for _ in range(size)]
+        self.size  = size
+        self.board = [[' ' for _ in range(self.size)] for _ in range(self.size)]
         self.moves = 0
         self.player = secrets.randbelow(100) % 2
 
     def getWinner(self):
         # Check horizontal wins
-        for r in range(len(self.board)):
+        for r in range(self.size):
             row = self.board[r]
             leadChar = row[0]
-            if leadChar != " " and row.count(leadChar) == len(row):
+            if leadChar != " " and row.count(leadChar) == self.size:
                 return leadChar
 
         # Check horizontal wins
-        for c in range(len(self.board[0])):
+        for c in range(self.size):
             column = []
             for row in self.board:
                 column.append(row[c])
-            if column[0] != ' ' and column.count(column[0]) == len(column):
+            if column[0] != ' ' and column.count(column[0]) == self.size:
                 return column[0]
 
         # Check top left to bot right diagonal win
-        diag1 = [self.board[r][c] for r in range(len(self.board)) \
-                                  for c in range(len(self.board)) \
+        diag1 = [self.board[r][c] for r in range(self.size) \
+                                  for c in range(self.size) \
                                   if r == c]
-        if diag1[0] != ' ' and diag1.count(diag1[0]) == len(diag1):
+        if diag1[0] != ' ' and diag1.count(diag1[0]) == self.size:
             return diage1[0]
 
         # Check top right to bot left diagonal win
-        diag1 = [self.board[r][c] for r in range(len(self.board)) \
-                                  for c in range(len(self.board)) \
-                                  if r + c == len(self.board)]
-        if diag1[0] != ' ' and diag1.count(diag1[0]) == len(diag1):
+        diag1 = [self.board[r][c] for r in range(self.size) \
+                                  for c in range(self.size) \
+                                  if r + c == self.size]
+        if diag1[0] != ' ' and diag1.count(diag1[0]) == self.size:
             return diage1[0]
 
         return None
 
     def showBoard(self):
-        b = '\n\t  ' + ' '.join([chr(65+i) for i in range(len(self.board))]) + '\n'
-        rowDiv = '\t  ' + ''.join([('─','┼')[i%2] for i in range(len(self.board)*2-1)]) + '\n'
+        b = '\n\t  ' + ' '.join([chr(65+i) for i in range(self.size)]) + '\n'
+        rowDiv = '\t  ' + ''.join([('─','┼')[i%2] for i in range(self.size*2-1)]) + '\n'
         for i, row in enumerate(self.board):
             if i != 0:
                 b += rowDiv
             for j, cell in enumerate(row):
                 leading  = f'\t{i+1} '   if j == 0          else '│'
-                trailing = '\n' if j == len(row)-1 else ''
+                trailing = '\n' if j == self.size-1 else ''
                 value = '.' if cell == ' ' else cell
                 b += f'{leading}{value}{trailing}'
         print(b)
@@ -58,8 +59,8 @@ class TicTacToe:
         return self.board[r][c] == ' '
 
     def getMove(self, msg="Where would you like to go? "):
-        validCol  = '[' + ''.join([chr(x+97) for x in range(len(self.board))])        + ']'
-        validRow  = '[' + ''.join(map(str, [x for x in range(1, len(self.board)+1)])) + ']'
+        validCol  = '[' + ''.join([chr(x+97) for x in range(self.size)])        + ']'
+        validRow  = '[' + ''.join(map(str, [x for x in range(1, self.size+1)])) + ']'
         ansPattern = validCol + validRow + '|' + validRow + validCol
         ans = ''.join(input(msg).strip().split())
         while True:
