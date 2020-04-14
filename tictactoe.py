@@ -6,4 +6,8 @@ if __name__ == '__main__':
     game = TicTacToe(3)
     while game.getWinner() == None:
         game.showBoard()
-        row, col = game.getMove()
+        currPlayer = game.turn.value
+        row, col = game.makeMove()
+        print(f'\nPlayer {currPlayer} went in ({row},{col})\n')
+    game.showBoard()
+    print(game.getWinner())
