@@ -2,6 +2,7 @@
 import unittest
 from tictactoe.TicTacToe import TicTacToe as TTT
 
+
 class Test_Default_Game(unittest.TestCase):
     def setUp(self):
         self.game = TTT()
@@ -20,6 +21,7 @@ class Test_Default_Game(unittest.TestCase):
     def tearDown(self):
         del self.game
 
+
 class Test_Custom_Game(unittest.TestCase):
     def setUp(self):
         self.game = TTT(5, 'c')
@@ -37,6 +39,7 @@ class Test_Custom_Game(unittest.TestCase):
 
     def tearDown(self):
         del self.game
+
 
 if __name__ == '__main__':
     unittest.main()

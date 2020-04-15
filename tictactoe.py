@@ -4,7 +4,7 @@ from tictactoe.TicTacToe import TicTacToe
 if __name__ == '__main__':
     print("     --Tic-Tac-Toe--")
     game = TicTacToe(3)
-    while game.getWinner() == None:
+    while game.getWinner() is None:
         game.showBoard()
         currPlayer = game.turn.value
         row, col = game.makeMove()
