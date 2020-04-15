@@ -17,23 +17,29 @@ class TicTacToe:
 
     def __init__(self, size=3, first='p'):
         self.size = size
-        self.board = [[' ' for _ in range(self.size)]
-                      for _ in range(self.size)]
+        self.board = []
+        for row in range(size):
+            self.board.append([' ' for _ in range(size)])
         self.turn = self.Turn.PLAYER if first == 'p' else \
             self.Turn.COMPUTER if first == 'c' else \
             secrets.choice(list(self.Turn.__members__.values()))
 
-    def _spotOpen(self, r, c):
+    def _spot_open(self, r, c):
         return self.board[r][c] == ' '
 
-    def _updateCell(self, r, c, val):
+    def _update_cell(self, r, c, val):
         self.board[r][c] = val
 
-    def _advanceTurn(self):
+    def _advance_turn(self):
         self.turn = self.Turn.PLAYER if self.turn.name == 'COMPUTER' else \
                 self.Turn.COMPUTER
 
-    def getWinner(self):
+    def _reset_board(self):
+        self.board = []
+        for row in range(self.size):
+            self.board.append([' ' for _ in range(self.size)])
+
+    def get_winner(self):
         # TODO: Implement more efficient check of win, perhaps using last move
         # Check horizontal wins
         for r in range(self.size):
@@ -68,7 +74,7 @@ class TicTacToe:
 
         return None
 
-    def showBoard(self):
+    def show_board(self):
         b = '\n\t  ' + ' '.join([chr(65+i) for i in range(self.size)]) + '\n'
         rowDiv = ''.join([('─', '┼')[i % 2] for i in range(self.size*2-1)])
         for i, row in enumerate(self.board):
@@ -80,10 +86,8 @@ class TicTacToe:
                 b += f'{leading}{cell}{trailing}'
         print(b)
 
-    def makeMove(self, msg="Where would you like to go? "):
-        '''Updates state of the board, player, and move count
-
-        '''
+    def make_move(self, msg="Where would you like to go? "):
+        ''' Updates state of the board, player, and move count '''
         validCol = ''.join([chr(x+97) for x in range(self.size)])
         validRow = ''.join(map(str, [x for x in range(1, self.size+1)]))
         ansPattern = f'[{validCol}][{validRow}]|[{validRow}][{validCol}]'
@@ -100,12 +104,12 @@ class TicTacToe:
                 # Ans in form \w\d
                 r = int(ans[1]) - 1
                 c = ord(ans[0].lower()) - 97
-            if not self._spotOpen(r, c):
+            if not self._spot_open(r, c):
                 print("That spot has already been taken.")
                 ans = ''
                 continue
             else:
                 break
-        self._updateCell(r, c, self.turn.value)
-        self._advanceTurn()
+        self._update_cell(self.turn.value)
+        self._advance_turn()
         return (r, c)

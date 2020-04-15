@@ -15,8 +15,40 @@ class Test_Default_Game(unittest.TestCase):
 
     def test_advance_turn(self):
         self.assertEqual(self.game.turn.value, 'X')
-        self.game._advanceTurn()
+        self.game._advance_turn()
         self.assertEqual(self.game.turn.value, 'O')
+
+    def test_hori_wins(self):
+        for row in range(self.game.size):
+            self.game._reset_board()
+            self.assertEqual(self.game.get_winner(), None)
+            for col in range(self.game.size):
+                self.game.board[row][col] = 'X'
+            self.assertEqual(self.game.get_winner(), 'X')
+
+    def test_vert_wins(self):
+        for col in range(self.game.size):
+            self.game._reset_board()
+            self.assertEqual(self.game.get_winner(), None)
+            for row in range(self.game.size):
+                self.game.board[row][col] = 'O'
+            self.assertEqual(self.game.get_winner(), 'O')
+
+    def test_diag_tl_br_win(self):
+        for row in range(self.game.size):
+            self.assertEqual(self.game.get_winner(), None)
+            for col in range(self.game.size):
+                if row == col:
+                    self.game.board[row][col] = 'X'
+        self.assertEqual(self.game.get_winner(), 'X')
+
+    def test_diag_bl_tr_win(self):
+        for row in range(self.game.size):
+            self.assertEqual(self.game.get_winner(), None)
+            for col in range(self.game.size):
+                if row + col == self.game.size - 1:
+                    self.game.board[row][col] = 'O'
+        self.assertEqual(self.game.get_winner(), 'O')
 
     def tearDown(self):
         del self.game
@@ -34,7 +66,7 @@ class Test_Custom_Game(unittest.TestCase):
 
     def test_advance_turn(self):
         self.assertEqual(self.game.turn.value, 'O')
-        self.game._advanceTurn()
+        self.game._advance_turn()
         self.assertEqual(self.game.turn.value, 'X')
 
     def tearDown(self):
