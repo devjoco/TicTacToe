@@ -50,6 +50,15 @@ class Test_Default_Game(unittest.TestCase):
                     self.game.board[row][col] = 'O'
         self.assertEqual(self.game.get_winner(), 'O')
 
+    def test_tie_game(self):
+        symbs = ('X', 'O')
+        for row in range(self.game.size - 1):
+            for col in range(self.game.size):
+                self.game.board[row][col] = symbs[col % 2]
+        for col in range(self.game.size):
+            self.game.board[-1][col] = symbs[(col + 1) % 2]
+        self.assertEqual(self.game.get_winner(), 'T')
+
     def tearDown(self):
         del self.game
 

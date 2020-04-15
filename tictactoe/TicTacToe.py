@@ -72,6 +72,13 @@ class TicTacToe:
         if diag2[0] != ' ' and diag2.count(diag2[0]) == self.size:
             return diag2[0]
 
+        # Check for tie
+        blanks = 0
+        for row in self.board:
+            blanks += row.count(' ')
+        if blanks == 0:
+            return 'T'
+
         return None
 
     def show_board(self):
@@ -110,6 +117,6 @@ class TicTacToe:
                 continue
             else:
                 break
-        self._update_cell(self.turn.value)
+        self._update_cell(r, c, self.turn.value)
         self._advance_turn()
         return (r, c)
