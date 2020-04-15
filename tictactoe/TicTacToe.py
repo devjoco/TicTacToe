@@ -19,7 +19,7 @@ class TicTacToe:
         self.board = [[' ' for _ in range(self.size)] for _ in range(self.size)]
         self.turn  = self.Turn.PLAYER   if first=='p' else\
                      self.Turn.COMPUTER if first=='c' else\
-                     secrets.choice([x for x in self.Turn.__members__])
+                     secrets.choice(list(self.Turn.__members__.values()))
 
     def _spotOpen(self, r, c):
         return self.board[r][c] == ' '
@@ -52,14 +52,14 @@ class TicTacToe:
                                   for c in range(self.size) \
                                   if r == c]
         if diag1[0] != ' ' and diag1.count(diag1[0]) == self.size:
-            return diage1[0]
+            return diag1[0]
 
         # Check top right to bot left diagonal win
-        diag1 = [self.board[r][c] for r in range(self.size) \
+        diag2 = [self.board[r][c] for r in range(self.size) \
                                   for c in range(self.size) \
-                                  if r + c == self.size]
-        if diag1[0] != ' ' and diag1.count(diag1[0]) == self.size:
-            return diage1[0]
+                                  if r + c == self.size - 1]
+        if diag2[0] != ' ' and diag2.count(diag2[0]) == self.size:
+            return diag2[0]
 
         return None
 
@@ -89,11 +89,13 @@ class TicTacToe:
                 msg = "Choose a valid row and column. "
                 ans = ''.join(input(msg).strip().split())
             try:
+                # Assume ans in form \d\w
                 r = int(ans[0]) - 1
                 c = ord(ans[1].lower()) - 97
             except ValueError:
-                r = ord(ans[0].lower()) - 97
-                c = int(ans[1]) - 1
+                # Ans in form \w\d
+                r = int(ans[1]) - 1
+                c = ord(ans[0].lower()) - 97
             if not self._spotOpen(r,c):
                 print("That spot has already been taken.")
                 ans = ''
