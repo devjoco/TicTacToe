@@ -93,15 +93,16 @@ class TicTacToe:
                 b += f'{leading}{cell}{trailing}'
         print(b)
 
-    def make_move(self, msg="Where would you like to go? "):
-        ''' Updates state of the board, player, and move count '''
+    def make_move(self):
+        ''' Collect player move, and updates board, player '''
         validCol = ''.join([chr(x+97) for x in range(self.size)])
         validRow = ''.join(map(str, [x for x in range(1, self.size+1)]))
         ansPattern = f'[{validCol}][{validRow}]|[{validRow}][{validCol}]'
+        msg = f'Player {self.turn.value} move: '
         ans = ''.join(input(msg).strip().split())
         while True:
             while not re.fullmatch(ansPattern, ans.lower()):
-                msg = "Choose a valid row and column. "
+                print("Choose a valid row and column.")
                 ans = ''.join(input(msg).strip().split())
             try:
                 # Assume ans in form \d\w
