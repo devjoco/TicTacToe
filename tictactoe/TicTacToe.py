@@ -15,13 +15,14 @@ class TicTacToe:
         PLAYER = 'X'
         COMPUTER = 'O'
 
-    def __init__(self, size=3, first='p'):
+    def __init__(self, size=3, first='p', multi=False):
         self.size = size
+        self.multi = multi
         self.board = []
         for row in range(size):
             self.board.append([' ' for _ in range(size)])
-        self.turn = self.Turn.PLAYER if first == 'p' else \
-            self.Turn.COMPUTER if first == 'c' else \
+        self.turn = self.Turn.PLAYER if first == 'player' else \
+            self.Turn.COMPUTER if first == 'computer' else \
             secrets.choice(list(self.Turn.__members__.values()))
 
     def _spot_open(self, r, c):
@@ -38,6 +39,10 @@ class TicTacToe:
         self.board = []
         for row in range(self.size):
             self.board.append([' ' for _ in range(self.size)])
+
+    @staticmethod
+    def convertRowCol(row, col):
+        return chr(col + ord('A')) + str(row + 1)
 
     def get_winner(self):
         # TODO: Implement more efficient check of win, perhaps using last move
@@ -92,6 +97,17 @@ class TicTacToe:
                 trailing = '\n' if j == self.size-1 else ''
                 b += f'{leading}{cell}{trailing}'
         print(b)
+
+    def comp_move(self):
+        ''' Randomly chooses a spot for the computer to move '''
+        r, c = secrets.choice([(i, j) 
+                               for i in range(self.size)
+                               for j in range(self.size)
+                               if self.board[i][j] == ' '])
+        self._update_cell(r, c, self.turn.value)
+        self._advance_turn()
+        return r, c
+
 
     def make_move(self):
         ''' Collect player move, and updates board, player '''
