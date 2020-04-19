@@ -6,9 +6,13 @@ import time
 
 def main():
     parser = argparse.ArgumentParser(description='Tic-Tac-Toe Game')
-    parser.add_argument('-s', '--size', default=3, type=int, help='Width & Height of the board')
-    parser.add_argument('-f', '--first', choices=['player', 'computer', 'random'], default='player')
-    parser.add_argument('-m', '--multi', action='store_true', help='Player vs Player')
+    parser.add_argument('-s', '--size', default=3, type=int,
+                        help='Width & Height of the board')
+    parser.add_argument('-f', '--first', default='player',
+                        choices=['player', 'computer', 'random'],
+                        help='Who makes first move')
+    parser.add_argument('-m', '--multi', action='store_true',
+                        help='Player vs Player')
     args = parser.parse_args()
 
     print('--Tic-Tac-Toe--'.center(26))
@@ -19,7 +23,6 @@ def main():
         game.show_board()
         if game.get_winner() is not None:
             break
-        
         if not game.multi:
             print("Computer is thinking...")
             time.sleep(2.4)

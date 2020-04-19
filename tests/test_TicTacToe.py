@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import unittest
-from unittest import TestCase, mock, expectedFailure
+from unittest import TestCase, mock
 from tictactoe.TicTacToe import TicTacToe as TTT
 
 
@@ -13,7 +13,7 @@ class Test_Utility_Funcs(TestCase):
     def test_convert_r0_c1(self):
         spot = TTT.convertRowCol(0, 1)
         self.assertEqual(spot, "B1")
-        
+
     def test_convert_r0_c2(self):
         spot = TTT.convertRowCol(0, 2)
         self.assertEqual(spot, "C1")
@@ -66,7 +66,7 @@ class Test_TTT_Parameters(TestCase):
         for c in 'pcr':
             with self.subTest(first=c):
                 self.game = TTT(first=c)
-                self.assertIn(self.game.turn, 
+                self.assertIn(self.game.turn,
                               list(self.game.Turn.__members__.values()))
 
 
@@ -91,7 +91,8 @@ class Test_Default_Game(TestCase):
             self.assertEqual(self.game.get_winner(), None)
             for col in range(self.game.size):
                 self.game.board[row][col] = self.game.Turn.PLAYER.value
-            self.assertEqual(self.game.get_winner(), self.game.Turn.PLAYER.value)
+            self.assertEqual(self.game.get_winner(),
+                             self.game.Turn.PLAYER.value)
 
     def test_vert_wins(self):
         for col in range(self.game.size):
@@ -99,7 +100,8 @@ class Test_Default_Game(TestCase):
             self.assertEqual(self.game.get_winner(), None)
             for row in range(self.game.size):
                 self.game.board[row][col] = self.game.Turn.COMPUTER.value
-            self.assertEqual(self.game.get_winner(), self.game.Turn.COMPUTER.value)
+            self.assertEqual(self.game.get_winner(),
+                             self.game.Turn.COMPUTER.value)
 
     def test_diag_tl_br_win(self):
         for row in range(self.game.size):
@@ -107,7 +109,8 @@ class Test_Default_Game(TestCase):
             for col in range(self.game.size):
                 if row == col:
                     self.game.board[row][col] = self.game.Turn.PLAYER.value
-        self.assertEqual(self.game.get_winner(), self.game.Turn.PLAYER.value)
+        self.assertEqual(self.game.get_winner(),
+                         self.game.Turn.PLAYER.value)
 
     def test_diag_bl_tr_win(self):
         for row in range(self.game.size):

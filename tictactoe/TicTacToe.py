@@ -100,14 +100,13 @@ class TicTacToe:
 
     def comp_move(self):
         ''' Randomly chooses a spot for the computer to move '''
-        r, c = secrets.choice([(i, j) 
+        r, c = secrets.choice([(i, j)
                                for i in range(self.size)
                                for j in range(self.size)
                                if self.board[i][j] == ' '])
         self._update_cell(r, c, self.turn.value)
         self._advance_turn()
         return r, c
-
 
     def make_move(self):
         ''' Collect player move, and updates board, player '''
