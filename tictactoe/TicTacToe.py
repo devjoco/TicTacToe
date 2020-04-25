@@ -1,5 +1,6 @@
 import re
 import secrets
+import time
 from enum import Enum
 
 
@@ -97,14 +98,23 @@ class TicTacToe:
                 b += f'{leading}{cell}{trailing}'
         print(b)
 
+    def make_move(self):
+        if self.turn == self.Turn.PLAYER or self.multi:
+            self.make_player_move()
+        else:
+            self.make_computer_move()
+
     def apply_move(self, row, col):
         self._update_cell(row, col, self.turn.value)
         self.last_move['row'] = row
         self.last_move['col'] = col
         self._advance_turn()
 
-    def make_comp_move(self):
+    def make_computer_move(self):
         ''' Randomly chooses a spot for the computer to move '''
+        print("Computer is thinking...")
+        sleep_time = 1 + secrets.randbelow(2)
+        time.sleep(sleep_time)
         r, c = secrets.choice([(i, j)
                                for i in range(self.size)
                                for j in range(self.size)
@@ -120,7 +130,8 @@ class TicTacToe:
         ans = ''.join(input(msg).strip().split())
         while True:
             while not re.fullmatch(ansPattern, ans.lower()):
-                print("Choose a valid row and column.")
+                if ans != '':
+                    print("Choose a valid row and column.")
                 ans = ''.join(input(msg).strip().split())
             try:
                 # Assume ans in form \d\w
