@@ -7,39 +7,39 @@ from tictactoe.TicTacToe import TicTacToe as TTT
 class Test_Utility_Funcs(TestCase):
 
     def test_convert__r0_c0(self):
-        spot = TTT.convertRowCol(0, 0)
+        spot = TTT.convert_row_col(0, 0)
         self.assertEqual(spot, "A1")
 
     def test_convert_r0_c1(self):
-        spot = TTT.convertRowCol(0, 1)
+        spot = TTT.convert_row_col(0, 1)
         self.assertEqual(spot, "B1")
 
     def test_convert_r0_c2(self):
-        spot = TTT.convertRowCol(0, 2)
+        spot = TTT.convert_row_col(0, 2)
         self.assertEqual(spot, "C1")
 
     def test_convert_r1_c0(self):
-        spot = TTT.convertRowCol(1, 0)
+        spot = TTT.convert_row_col(1, 0)
         self.assertEqual(spot, "A2")
 
     def test_convert_r1_c1(self):
-        spot = TTT.convertRowCol(1, 1)
+        spot = TTT.convert_row_col(1, 1)
         self.assertEqual(spot, "B2")
 
     def test_convert_r1_c2(self):
-        spot = TTT.convertRowCol(1, 2)
+        spot = TTT.convert_row_col(1, 2)
         self.assertEqual(spot, "C2")
 
     def test_convert_r2_c0(self):
-        spot = TTT.convertRowCol(2, 0)
+        spot = TTT.convert_row_col(2, 0)
         self.assertEqual(spot, "A3")
 
     def test_convert_r2_c1(self):
-        spot = TTT.convertRowCol(2, 1)
+        spot = TTT.convert_row_col(2, 1)
         self.assertEqual(spot, "B3")
 
     def test_convert_r2_c2(self):
-        spot = TTT.convertRowCol(2, 2)
+        spot = TTT.convert_row_col(2, 2)
         self.assertEqual(spot, "C3")
 
 
@@ -47,12 +47,13 @@ class Test_Single_Player(TestCase):
     @mock.patch('tictactoe.TicTacToe.input', create=True)
     def test_comp_goes_after_player(self, mocked_input):
         mocked_input.side_effect = ['a1']
-        self.game = TTT(size=3, first='p')
-        self.game.make_move()
+        self.game = TTT(size=3, first='player')
         self.assertEqual(self.game.turn, self.game.Turn.PLAYER)
+        self.game.make_player_move()
+        self.assertEqual(self.game.turn, self.game.Turn.COMPUTER)
 
     def tearDown(self):
-        self.game = None
+        del self.game
 
 
 class Test_TTT_Parameters(TestCase):
@@ -62,12 +63,18 @@ class Test_TTT_Parameters(TestCase):
                 self.game = TTT(size=i)
                 self.assertEqual(self.game.size, i)
 
-    def test_first_move(self):
-        for c in 'pcr':
-            with self.subTest(first=c):
-                self.game = TTT(first=c)
-                self.assertIn(self.game.turn,
-                              list(self.game.Turn.__members__.values()))
+    def test_player_first(self):
+        self.game = TTT(first="player")
+        self.assertEqual(self.game.turn, self.game.Turn.PLAYER)
+
+    def test_computer_first(self):
+        self.game = TTT(first="computer")
+        self.assertEqual(self.game.turn, self.game.Turn.COMPUTER)
+
+    def test_random_first(self):
+        self.game = TTT(first="random")
+        self.assertTrue(
+            self.game.turn in [self.game.Turn.PLAYER, self.game.Turn.COMPUTER])
 
 
 class Test_Default_Game(TestCase):
@@ -135,7 +142,7 @@ class Test_Default_Game(TestCase):
 
 class Test_Custom_Game(TestCase):
     def setUp(self):
-        self.game = TTT(5, 'c')
+        self.game = TTT(5, 'computer')
 
     def test_player_choice(self):
         self.assertEqual(self.game.turn, self.game.Turn.COMPUTER)

@@ -1,6 +1,5 @@
 import re
 import secrets
-
 from enum import Enum
 
 
@@ -18,12 +17,13 @@ class TicTacToe:
     def __init__(self, size=3, first='p', multi=False):
         self.size = size
         self.multi = multi
-        self.board = []
-        for row in range(size):
-            self.board.append([' ' for _ in range(size)])
-        self.turn = self.Turn.PLAYER if first == 'player' else \
-            self.Turn.COMPUTER if first == 'computer' else \
-            secrets.choice(list(self.Turn.__members__.values()))
+        self.last_move = {'row': None, 'col': None}
+        self.board = [[' ' for _ in range(size)] for _ in range(size)]
+        self.turn = self.Turn.PLAYER
+        if first == 'computer':
+            self.turn = self.Turn.COMPUTER
+        elif first == 'random':
+            self.turn = secrets.choice(list(self.Turn.__members__.values()))
 
     def _spot_open(self, r, c):
         return self.board[r][c] == ' '
@@ -36,12 +36,11 @@ class TicTacToe:
                 self.Turn.COMPUTER
 
     def _reset_board(self):
-        self.board = []
-        for row in range(self.size):
-            self.board.append([' ' for _ in range(self.size)])
+        self.board = [[' ' for _ in range(self.size)]
+                      for _ in range(self.size)]
 
     @staticmethod
-    def convertRowCol(row, col):
+    def convert_row_col(row, col):
         return chr(col + ord('A')) + str(row + 1)
 
     def get_winner(self):
@@ -98,17 +97,21 @@ class TicTacToe:
                 b += f'{leading}{cell}{trailing}'
         print(b)
 
-    def comp_move(self):
+    def apply_move(self, row, col):
+        self._update_cell(row, col, self.turn.value)
+        self.last_move['row'] = row
+        self.last_move['col'] = col
+        self._advance_turn()
+
+    def make_comp_move(self):
         ''' Randomly chooses a spot for the computer to move '''
         r, c = secrets.choice([(i, j)
                                for i in range(self.size)
                                for j in range(self.size)
                                if self.board[i][j] == ' '])
-        self._update_cell(r, c, self.turn.value)
-        self._advance_turn()
-        return r, c
+        self.apply_move(r, c)
 
-    def make_move(self):
+    def make_player_move(self):
         ''' Collect player move, and updates board, player '''
         validCol = ''.join([chr(x+97) for x in range(self.size)])
         validRow = ''.join(map(str, [x for x in range(1, self.size+1)]))
@@ -133,6 +136,4 @@ class TicTacToe:
                 continue
             else:
                 break
-        self._update_cell(r, c, self.turn.value)
-        self._advance_turn()
-        return (r, c)
+        self.apply_move(r, c)
