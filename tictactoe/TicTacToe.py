@@ -111,8 +111,7 @@ class TicTacToe:
             for col, cell in enumerate(row):
                 lead_val = "" if col == 0 else "│"
                 cell_val = "".center(self.cell_width, cell)
-                # tail_val = "" if col != self.size - 1 else "\n"
-                row_repr += lead_val + cell_val #+ tail_val
+                row_repr += lead_val + cell_val
 
             # Add non-labelled, upper layers of row
             for _ in range(self.cell_width // 2):
