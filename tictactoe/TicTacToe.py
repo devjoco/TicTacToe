@@ -1,3 +1,4 @@
+import os
 import re
 import secrets
 import time
@@ -85,38 +86,45 @@ class TicTacToe:
         return None
 
     def show_board(self):
-        """Displays the current state of the board.
+        """Displays the current state of the board centered on the screen.
 
         Fills the entire cell with the shading for the current player's turn.
         """
 
-        string = ''       # The string repr of the board to be printed
-        offset = ' ' * 8  # Whitespace to push everything to the right a bit
+        board_repr = ''       # The string repr of the board to be printed
+        screen_width = os.get_terminal_size().columns
         row_sep = '┼'.join(['─' * self.cell_width for _ in range(self.size)])
         col_head = ' '.join([chr(65+i).center(self.cell_width)
                              for i in range(self.size)])
 
         # Add the header showing the column labels
-        string += "\n" + offset + "  " + col_head + "\n"
+        board_repr += "\n" + ("  " + col_head).center(screen_width) + "\n"
 
         # Add each of the rows, and cell_buff's if necessary
         for i, row in enumerate(self.board):
             # Add row_sep if not first row
             if i != 0:
-                string += offset + "  " + row_sep + "\n"
+                board_repr += ("  " + row_sep).center(screen_width) + "\n"
 
-            # Add row values
-            for j in range(self.cell_width):
-                string += offset
-                for k, cell in enumerate(row):
-                    if k == 0 and j == self.cell_width // 2:
-                        leading = f'{i+1} '
-                    else:
-                        leading = '  ' if k == 0 else '│'
-                    trailing = '\n' if (k == self.size - 1) else ''
-                    cell_val = f'{cell}'.center(self.cell_width, cell)
-                    string += f'{leading}{cell_val}{trailing}'
-        print(string)
+            # Determine row_repr
+            row_repr = ""
+            for col, cell in enumerate(row):
+                lead_val = "" if col == 0 else "│"
+                cell_val = "".center(self.cell_width, cell)
+                # tail_val = "" if col != self.size - 1 else "\n"
+                row_repr += lead_val + cell_val #+ tail_val
+
+            # Add non-labelled, upper layers of row
+            for _ in range(self.cell_width // 2):
+                board_repr += ("  " + row_repr).center(screen_width) + '\n'
+
+            # Add labelled, middle layer of row
+            board_repr += (f"{i+1} " + row_repr).center(screen_width) + '\n'
+
+            # Add non-labelled, lower layers of row
+            for _ in range(self.cell_width // 2):
+                board_repr += ("  " + row_repr).center(screen_width) + '\n'
+        print(board_repr)
 
     def show_info(self):
         """Prints out a heading which will show the games info.
