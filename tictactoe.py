@@ -12,20 +12,33 @@ def main():
                         help='Who makes first move')
     parser.add_argument('-m', '--multi', action='store_true',
                         help='Player vs Player')
+    parser.add_argument('-b', '--bigger', action='count', default=0,
+                        help='Display the board bigger')
     args = parser.parse_args()
 
-    print('--Tic-Tac-Toe--'.center(26))
-    game = TicTacToe(size=args.size, first=args.first, multi=args.multi)
+    # Create an instance of TicTacToe
+    cell_width = min(1 + 2 * (args.bigger), 5)
+    game = TicTacToe(size=args.size,
+                     first=args.first,
+                     multi=args.multi,
+                     cell_width=cell_width)
+
+    # Display game info and begin getting moves
+    game.show_info()
     game.show_board()
     while True:
         game.make_move()
         game.show_board()
-        if game.turn == game.Turn.PLAYER and not game.multi:
-            chosen_spot = game.convert_row_col(**game.last_move)
-            print(f'Computer went in {chosen_spot}')
+        # Stop game if someone won or there's a tie
         if game.get_winner() is not None:
             break
-    print(f'And the winner is.. {game.get_winner()}')
+
+    # Display who won
+    win = game.get_winner()
+    if (win == game.Turn.PLAYER.value or win == game.Turn.COMPUTER.value):
+        print(f'Player {game.get_winner()} wins!')
+    else:
+        print("It's a tie. You both lose!")
 
 
 if __name__ == '__main__':

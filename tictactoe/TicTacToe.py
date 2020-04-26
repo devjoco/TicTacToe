@@ -5,19 +5,17 @@ from enum import Enum
 
 
 class TicTacToe:
-    '''Represents a game of tic-tac-toe against a computer player.
-    Args:
-        size  (int): Size of the game board, defaults to 3
-        first (str): Determines who makes the first move
-            'p' for Player (default), 'c' for computer
-    '''
-    class Turn(Enum):
-        PLAYER = 'X'
-        COMPUTER = 'O'
+    """Represents a game of tic-tac-toe."""
 
-    def __init__(self, size=3, first='p', multi=False):
+    class Turn(Enum):
+        PLAYER = '█'
+        COMPUTER = '░'
+
+    def __init__(self, size=3, first='player', multi=False, cell_width=1):
         self.size = size
+        self.first = first
         self.multi = multi
+        self.cell_width = cell_width
         self.last_move = {'row': None, 'col': None}
         self.board = [[' ' for _ in range(size)] for _ in range(size)]
         self.turn = self.Turn.PLAYER
@@ -49,9 +47,9 @@ class TicTacToe:
         # Check horizontal wins
         for r in range(self.size):
             row = self.board[r]
-            leadChar = row[0]
-            if leadChar != " " and row.count(leadChar) == self.size:
-                return leadChar
+            lead_char = row[0]
+            if lead_char != " " and row.count(lead_char) == self.size:
+                return lead_char
 
         # Check vertical wins
         for c in range(self.size):
@@ -87,16 +85,59 @@ class TicTacToe:
         return None
 
     def show_board(self):
-        b = '\n\t  ' + ' '.join([chr(65+i) for i in range(self.size)]) + '\n'
-        rowDiv = ''.join([('─', '┼')[i % 2] for i in range(self.size*2-1)])
+        """Displays the current state of the board.
+
+        Fills the entire cell with the shading for the current player's turn.
+        """
+
+        string = ''       # The string repr of the board to be printed
+        offset = ' ' * 8  # Whitespace to push everything to the right a bit
+        row_sep = '┼'.join(['─' * self.cell_width for _ in range(self.size)])
+        col_head = ' '.join([chr(65+i).center(self.cell_width)
+                             for i in range(self.size)])
+
+        # Add the header showing the column labels
+        string += "\n" + offset + "  " + col_head + "\n"
+
+        # Add each of the rows, and cell_buff's if necessary
         for i, row in enumerate(self.board):
+            # Add row_sep if not first row
             if i != 0:
-                b += '\t  ' + rowDiv + '\n'
-            for j, cell in enumerate(row):
-                leading = f'\t{i+1} ' if j == 0 else '│'
-                trailing = '\n' if j == self.size-1 else ''
-                b += f'{leading}{cell}{trailing}'
-        print(b)
+                string += offset + "  " + row_sep + "\n"
+
+            # Add row values
+            for j in range(self.cell_width):
+                string += offset
+                for k, cell in enumerate(row):
+                    if k == 0 and j == self.cell_width // 2:
+                        leading = f'{i+1} '
+                    else:
+                        leading = '  ' if k == 0 else '│'
+                    trailing = '\n' if (k == self.size - 1) else ''
+                    cell_val = f'{cell}'.center(self.cell_width, cell)
+                    string += f'{leading}{cell_val}{trailing}'
+        print(string)
+
+    def show_info(self):
+        """Prints out a heading which will show the games info.
+
+        This includes:
+            - Whether it is against a computer or another player
+            - The dimensions of the tic tac toe board
+            - Who the first move is, and whether that was randomly chosen
+        """
+
+        play_area = (self.size * 2 - 1) + 18
+        user = 'Player' if self.multi or self.turn == self.Turn.PLAYER else \
+               'Computer'
+        sym = '\b' if user == 'Computer' else \
+              self.turn.value
+        rand = '' if self.first != 'random' else \
+               'Randomly chosen'
+        print('Tic Tac Toe'.center(play_area, '-'))
+        print(f'{self.size}x{self.size}'.center(play_area))
+        print(f'{user} {sym} first!'.center(play_area))
+        print(f'{rand}'.center(play_area))
 
     def make_move(self):
         if self.turn == self.Turn.PLAYER or self.multi:
@@ -111,7 +152,8 @@ class TicTacToe:
         self._advance_turn()
 
     def make_computer_move(self):
-        ''' Randomly chooses a spot for the computer to move '''
+        """Randomly chooses a spot for the computer to move."""
+
         print("Computer is thinking...")
         sleep_time = 1 + secrets.randbelow(2)
         time.sleep(sleep_time)
@@ -120,13 +162,17 @@ class TicTacToe:
                                for j in range(self.size)
                                if self.board[i][j] == ' '])
         self.apply_move(r, c)
+        chosen_spot = self.convert_row_col(**self.last_move)
+        print(f'Computer went in {chosen_spot}')
 
     def make_player_move(self):
-        ''' Collect player move, and updates board, player '''
+        """Collect player move, and updates board, player."""
+
         validCol = ''.join([chr(x+97) for x in range(self.size)])
         validRow = ''.join(map(str, [x for x in range(1, self.size+1)]))
         ansPattern = f'[{validCol}][{validRow}]|[{validRow}][{validCol}]'
-        msg = f'Player {self.turn.value} move: '
+        msgLead = '\n' if not self.multi else ''
+        msg = f'{msgLead}Player {self.turn.value} move: '
         ans = ''.join(input(msg).strip().split())
         while True:
             while not re.fullmatch(ansPattern, ans.lower()):
