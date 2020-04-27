@@ -134,17 +134,17 @@ class TicTacToe:
             - Who the first move is, and whether that was randomly chosen
         """
 
-        play_area = (self.size * 2 - 1) + 18
+        screen_width = os.get_terminal_size().columns
         user = 'Player' if self.multi or self.turn == self.Turn.PLAYER else \
                'Computer'
         sym = '\b' if user == 'Computer' else \
               self.turn.value
         rand = '' if self.first != 'random' else \
                'Randomly chosen'
-        print('Tic Tac Toe'.center(play_area, '-'))
-        print(f'{self.size}x{self.size}'.center(play_area))
-        print(f'{user} {sym} first!'.center(play_area))
-        print(f'{rand}'.center(play_area))
+        print('Tic Tac Toe'.center(screen_width, '-'))
+        print(f'{self.size}x{self.size}'.center(screen_width))
+        print(f'{user} {sym} first!'.center(screen_width))
+        print(f'{rand}'.center(screen_width))
 
     def make_move(self):
         if self.turn == self.Turn.PLAYER or self.multi:
