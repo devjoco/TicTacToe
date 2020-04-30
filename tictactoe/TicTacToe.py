@@ -15,6 +15,7 @@ class TicTacToe:
     def __init__(self, size=3, first='player', multi=False, cell_width=1):
         self.size = size
         self.first = first
+        self.random = False
         self.multi = multi
         self.cell_width = cell_width
         self.last_move = {'row': None, 'col': None}
@@ -24,6 +25,8 @@ class TicTacToe:
             self.turn = self.Turn.COMPUTER
         elif first == 'random':
             self.turn = secrets.choice(list(self.Turn.__members__.values()))
+            self.first = self.turn.name.lower()
+            self.random = True
 
     def _spot_open(self, r, c):
         return self.board[r][c] == ' '
@@ -32,8 +35,8 @@ class TicTacToe:
         self.board[r][c] = val
 
     def _advance_turn(self):
-        self.turn = self.Turn.PLAYER if self.turn.name == 'COMPUTER' else \
-                self.Turn.COMPUTER
+        self.turn = (self.Turn.PLAYER if self.turn.name == 'COMPUTER' else
+                     self.Turn.COMPUTER)
 
     def _reset_board(self):
         self.board = [[' ' for _ in range(self.size)]
@@ -128,23 +131,56 @@ class TicTacToe:
     def show_info(self):
         """Prints out a heading which will show the games info.
 
-        This includes:
+        Takes up three lines of the screen and includes:
             - Whether it is against a computer or another player
             - The dimensions of the tic tac toe board
             - Who the first move is, and whether that was randomly chosen
+
+        Example:
+        ~~~~~~~~~~~~~~~~~~~~~~~~~ Tic Tac Toe ~~~~~~~~~~~~~~~~~~~~~~~~~
+        First Move: Player █       3x3 Board         Opponent: Computer
+        Last Move: Computer ░ A3
         """
 
         screen_width = os.get_terminal_size().columns
-        user = 'Player' if self.multi or self.turn == self.Turn.PLAYER else \
-               'Computer'
-        sym = '\b' if user == 'Computer' else \
-              self.turn.value
-        rand = '' if self.first != 'random' else \
-               'Randomly chosen'
-        print('Tic Tac Toe'.center(screen_width, '-'))
-        print(f'{self.size}x{self.size}'.center(screen_width))
-        print(f'{user} {sym} first!'.center(screen_width))
-        print(f'{rand}'.center(screen_width))
+        opponent = 'Human' if self.multi else 'Computer'
+        first_turn = (self.Turn.PLAYER if self.first == 'player' else
+                      self.Turn.COMPUTER)
+        first_name = first_turn.name.capitalize()
+        first_repr = f'First Move: {first_name} {first_turn.value}'
+        oppon_repr = f'Opponent: {opponent}'
+        dimen_width = screen_width - sum(map(len, [first_repr, oppon_repr]))
+        dimen_repr = f'{self.size}x{self.size} Board'.center(dimen_width)
+        info_repr = ''.join([first_repr, dimen_repr, oppon_repr])
+        last_repr = ''
+        if self.last_move['row'] is not None:
+            last_turn = (self.Turn.PLAYER if self.turn == self.Turn.COMPUTER
+                         else self.Turn.COMPUTER)
+            last_name = last_turn.name.capitalize()
+            last_value = last_turn.value
+            last_spot = self.convert_row_col(**self.last_move)
+            last_repr = ('' if self.last_move['row'] is None else
+                         f'Last Move: {last_name} {last_value} {last_spot}')
+        print('Tic Tac Toe'.center(screen_width, '~'))
+        print(info_repr)
+        print(last_repr)
+
+    def show_game(self):
+        """Update the terminal screen with the current state of the game.
+
+        Elements of the screen:
+        Title/Header: Name of game, dimensions, solo vs multi, first(random?)
+        Last Move: Show's who went last and in what spot. Empty line if N/A
+        Play Area: State of board w/ row/col labels
+        Error Msg: Display if user chose invalid/taken spot. Empty if N/A
+
+        Title/Header and Last Move takes up two lines to the top, Error Msg &
+        prompt for next move takes two lines on bottom, Play Area takes up
+        remaining lines in between.
+        """
+
+        self.show_info()
+        self.show_board()
 
     def make_move(self):
         if self.turn == self.Turn.PLAYER or self.multi:

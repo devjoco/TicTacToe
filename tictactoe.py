@@ -24,11 +24,10 @@ def main():
                      cell_width=cell_width)
 
     # Display game info and begin getting moves
-    game.show_info()
-    game.show_board()
+    game.show_game()
     while True:
         game.make_move()
-        game.show_board()
+        game.show_game()
         # Stop game if someone won or there's a tie
         if game.get_winner() is not None:
             break
