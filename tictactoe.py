@@ -5,23 +5,19 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser(description='Tic-Tac-Toe Game')
-    parser.add_argument('-s', '--size', default=3, type=int,
+    parser.add_argument('-w', '--width', default=3, type=int,
                         help='Width & Height of the board')
     parser.add_argument('-f', '--first', default='player',
                         choices=['player', 'computer', 'random'],
                         help='Who makes first move')
     parser.add_argument('-m', '--multi', action='store_true',
                         help='Player vs Player')
-    parser.add_argument('-b', '--bigger', action='count', default=0,
-                        help='Display the board bigger')
     args = parser.parse_args()
 
     # Create an instance of TicTacToe
-    cell_width = min(1 + 2 * (args.bigger), 5)
-    game = TicTacToe(size=args.size,
+    game = TicTacToe(width=args.width,
                      first=args.first,
-                     multi=args.multi,
-                     cell_width=cell_width)
+                     multi=args.multi)
 
     # Display game info and begin getting moves
     game.show_game()

@@ -12,14 +12,13 @@ class TicTacToe:
         PLAYER = '█'
         COMPUTER = '░'
 
-    def __init__(self, size=3, first='player', multi=False, cell_width=1):
-        self.size = size
+    def __init__(self, width=3, first='player', multi=False):
+        self.width = width
         self.first = first
         self.random = False
         self.multi = multi
-        self.cell_width = cell_width
         self.last_move = {'row': None, 'col': None}
-        self.board = [[' ' for _ in range(size)] for _ in range(size)]
+        self.board = [[' ' for _ in range(width)] for _ in range(width)]
         self.turn = self.Turn.PLAYER
         if first == 'computer':
             self.turn = self.Turn.COMPUTER
@@ -39,8 +38,8 @@ class TicTacToe:
                      self.Turn.COMPUTER)
 
     def _reset_board(self):
-        self.board = [[' ' for _ in range(self.size)]
-                      for _ in range(self.size)]
+        self.board = [[' ' for _ in range(self.width)]
+                      for _ in range(self.width)]
 
     @staticmethod
     def convert_row_col(row, col):
@@ -49,34 +48,34 @@ class TicTacToe:
     def get_winner(self):
         # TODO: Implement more efficient check of win, perhaps using last move
         # Check horizontal wins
-        for r in range(self.size):
+        for r in range(self.width):
             row = self.board[r]
             lead_char = row[0]
-            if lead_char != " " and row.count(lead_char) == self.size:
+            if lead_char != " " and row.count(lead_char) == self.width:
                 return lead_char
 
         # Check vertical wins
-        for c in range(self.size):
+        for c in range(self.width):
             column = []
             for row in self.board:
                 column.append(row[c])
-            if column[0] != ' ' and column.count(column[0]) == self.size:
+            if column[0] != ' ' and column.count(column[0]) == self.width:
                 return column[0]
 
         # Check top left to bot right diagonal win
         diag1 = [self.board[r][c]
-                 for r in range(self.size)
-                 for c in range(self.size)
+                 for r in range(self.width)
+                 for c in range(self.width)
                  if r == c]
-        if diag1[0] != ' ' and diag1.count(diag1[0]) == self.size:
+        if diag1[0] != ' ' and diag1.count(diag1[0]) == self.width:
             return diag1[0]
 
         # Check top right to bot left diagonal win
         diag2 = [self.board[r][c]
-                 for r in range(self.size)
-                 for c in range(self.size)
-                 if r + c == self.size - 1]
-        if diag2[0] != ' ' and diag2.count(diag2[0]) == self.size:
+                 for r in range(self.width)
+                 for c in range(self.width)
+                 if r + c == self.width - 1]
+        if diag2[0] != ' ' and diag2.count(diag2[0]) == self.width:
             return diag2[0]
 
         # Check for tie
@@ -96,12 +95,18 @@ class TicTacToe:
 
         board_repr = ''       # The string repr of the board to be printed
         screen_width = os.get_terminal_size().columns
-        row_sep = '┼'.join(['─' * self.cell_width for _ in range(self.size)])
-        col_head = ' '.join([chr(65+i).center(self.cell_width)
-                             for i in range(self.size)])
+        screen_height = os.get_terminal_size().lines
+        cell_width = (screen_height - 9 - self.width) // self.width
+        buffer_needed = screen_height - 9 - (cell_width * self.width)
+        buffer_above = buffer_needed // 2
+        buffer_below = buffer_needed - buffer_above
+        row_sep = '┼'.join(['─' * cell_width for _ in range(self.width)])
+        col_head = ' '.join([chr(65+i).center(cell_width)
+                             for i in range(self.width)])
 
         # Add the header showing the column labels
-        board_repr += "\n" + ("  " + col_head).center(screen_width) + "\n"
+        board_repr += "\n" * buffer_above
+        board_repr += ("  " + col_head).center(screen_width) + "\n"
 
         # Add each of the rows, and cell_buff's if necessary
         for i, row in enumerate(self.board):
@@ -109,23 +114,24 @@ class TicTacToe:
             if i != 0:
                 board_repr += ("  " + row_sep).center(screen_width) + "\n"
 
-            # Determine row_repr
-            row_repr = ""
-            for col, cell in enumerate(row):
-                lead_val = "" if col == 0 else "│"
-                cell_val = "".center(self.cell_width, cell)
-                row_repr += lead_val + cell_val
+            # Determine row_repr to be used for each layer of row
+            # Builds each row from the "leader" char and the cell value
+            # Leader char is vertical bar if cell is not first cell
+            row_repr = "".join("".join([("" if col == 0 else "│"),
+                                        ("".center(cell_width, cell))])
+                               for col, cell in enumerate(row))
 
             # Add non-labelled, upper layers of row
-            for _ in range(self.cell_width // 2):
+            for _ in range(cell_width // 2):
                 board_repr += ("  " + row_repr).center(screen_width) + '\n'
 
             # Add labelled, middle layer of row
             board_repr += (f"{i+1} " + row_repr).center(screen_width) + '\n'
 
             # Add non-labelled, lower layers of row
-            for _ in range(self.cell_width // 2):
+            for _ in range(cell_width // 2):
                 board_repr += ("  " + row_repr).center(screen_width) + '\n'
+        board_repr += "\n" * buffer_below
         print(board_repr)
 
     def show_info(self):
@@ -150,7 +156,7 @@ class TicTacToe:
         first_repr = f'First Move: {first_name} {first_turn.value}'
         oppon_repr = f'Opponent: {opponent}'
         dimen_width = screen_width - sum(map(len, [first_repr, oppon_repr]))
-        dimen_repr = f'{self.size}x{self.size} Board'.center(dimen_width)
+        dimen_repr = f'{self.width}x{self.width} Board'.center(dimen_width)
         info_repr = ''.join([first_repr, dimen_repr, oppon_repr])
         last_repr = ''
         if self.last_move['row'] is not None:
@@ -201,8 +207,8 @@ class TicTacToe:
         sleep_time = 1 + secrets.randbelow(2)
         time.sleep(sleep_time)
         r, c = secrets.choice([(i, j)
-                               for i in range(self.size)
-                               for j in range(self.size)
+                               for i in range(self.width)
+                               for j in range(self.width)
                                if self.board[i][j] == ' '])
         self.apply_move(r, c)
         chosen_spot = self.convert_row_col(**self.last_move)
@@ -211,8 +217,8 @@ class TicTacToe:
     def make_player_move(self):
         """Collect player move, and updates board, player."""
 
-        validCol = ''.join([chr(x+97) for x in range(self.size)])
-        validRow = ''.join(map(str, [x for x in range(1, self.size+1)]))
+        validCol = ''.join([chr(x+97) for x in range(self.width)])
+        validRow = ''.join(map(str, [x for x in range(1, self.width+1)]))
         ansPattern = f'[{validCol}][{validRow}]|[{validRow}][{validCol}]'
         msgLead = '\n' if not self.multi else ''
         msg = f'{msgLead}Player {self.turn.value} move: '

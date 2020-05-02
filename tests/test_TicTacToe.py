@@ -47,7 +47,7 @@ class Test_Single_Player(TestCase):
     @mock.patch('tictactoe.TicTacToe.input', create=True)
     def test_comp_goes_after_player(self, mocked_input):
         mocked_input.side_effect = ['a1']
-        self.game = TTT(size=3, first='player')
+        self.game = TTT(width=3, first='player')
         self.assertEqual(self.game.turn, self.game.Turn.PLAYER)
         self.game.make_player_move()
         self.assertEqual(self.game.turn, self.game.Turn.COMPUTER)
@@ -57,11 +57,11 @@ class Test_Single_Player(TestCase):
 
 
 class Test_TTT_Parameters(TestCase):
-    def test_game_size(self):
+    def test_game_width(self):
         for i in range(20):
             with self.subTest(i=i):
-                self.game = TTT(size=i)
-                self.assertEqual(self.game.size, i)
+                self.game = TTT(width=i)
+                self.assertEqual(self.game.width, i)
 
     def test_player_first(self):
         self.game = TTT(first="player")
@@ -84,8 +84,8 @@ class Test_Default_Game(TestCase):
     def test_player_choice(self):
         self.assertEqual(self.game.turn, self.game.Turn.PLAYER)
 
-    def test_default_size_3(self):
-        self.assertEqual(self.game.size, 3)
+    def test_default_width_3(self):
+        self.assertEqual(self.game.width, 3)
 
     def test_advance_turn(self):
         self.assertEqual(self.game.turn, self.game.Turn.PLAYER)
@@ -93,46 +93,46 @@ class Test_Default_Game(TestCase):
         self.assertEqual(self.game.turn, self.game.Turn.COMPUTER)
 
     def test_hori_wins(self):
-        for row in range(self.game.size):
+        for row in range(self.game.width):
             self.game._reset_board()
             self.assertEqual(self.game.get_winner(), None)
-            for col in range(self.game.size):
+            for col in range(self.game.width):
                 self.game.board[row][col] = self.game.Turn.PLAYER.value
             self.assertEqual(self.game.get_winner(),
                              self.game.Turn.PLAYER.value)
 
     def test_vert_wins(self):
-        for col in range(self.game.size):
+        for col in range(self.game.width):
             self.game._reset_board()
             self.assertEqual(self.game.get_winner(), None)
-            for row in range(self.game.size):
+            for row in range(self.game.width):
                 self.game.board[row][col] = self.game.Turn.COMPUTER.value
             self.assertEqual(self.game.get_winner(),
                              self.game.Turn.COMPUTER.value)
 
     def test_diag_tl_br_win(self):
-        for row in range(self.game.size):
+        for row in range(self.game.width):
             self.assertEqual(self.game.get_winner(), None)
-            for col in range(self.game.size):
+            for col in range(self.game.width):
                 if row == col:
                     self.game.board[row][col] = self.game.Turn.PLAYER.value
         self.assertEqual(self.game.get_winner(),
                          self.game.Turn.PLAYER.value)
 
     def test_diag_bl_tr_win(self):
-        for row in range(self.game.size):
+        for row in range(self.game.width):
             self.assertEqual(self.game.get_winner(), None)
-            for col in range(self.game.size):
-                if row + col == self.game.size - 1:
+            for col in range(self.game.width):
+                if row + col == self.game.width - 1:
                     self.game.board[row][col] = self.game.Turn.COMPUTER.value
         self.assertEqual(self.game.get_winner(), self.game.Turn.COMPUTER.value)
 
     def test_tie_game(self):
         symbs = (self.game.Turn.PLAYER.value, self.game.Turn.COMPUTER.value)
-        for row in range(self.game.size - 1):
-            for col in range(self.game.size):
+        for row in range(self.game.width - 1):
+            for col in range(self.game.width):
                 self.game.board[row][col] = symbs[col % 2]
-        for col in range(self.game.size):
+        for col in range(self.game.width):
             self.game.board[-1][col] = symbs[(col + 1) % 2]
         self.assertEqual(self.game.get_winner(), 'T')
 
@@ -147,8 +147,8 @@ class Test_Custom_Game(TestCase):
     def test_player_choice(self):
         self.assertEqual(self.game.turn, self.game.Turn.COMPUTER)
 
-    def test_custom_game_size(self):
-        self.assertEqual(self.game.size, 5)
+    def test_custom_game_width(self):
+        self.assertEqual(self.game.width, 5)
 
     def test_advance_turn(self):
         self.assertEqual(self.game.turn, self.game.Turn.COMPUTER)

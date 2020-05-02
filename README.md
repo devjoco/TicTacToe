@@ -7,23 +7,21 @@ Can be played against a computer, or against another person.
 ### Synopsis
 
 ```
-       python3 tictactoe.py [-m] [-p|-c] [-s <size>]
+       tictactoe.py [-h] [-w WIDTH] [-f {player,computer,random}] [-m]
 ```
 
 ### Options
-       -c, --computer
-           Specify that the computer will make the first move.
+       -h, --help
+           Show help message and exit
 
-       -m, --multiplayer
+       -m, --multi
            Specify that there will be two human players.
-           Combined with -c, 'O' will be first move.
-           Combined with -m, 'X' will still be first move.
 
-       -p, --player
-           Specify that the player will make the first move.
+       -f, --first {player, computer, random}
+           Specify who will make the first move.
 
-       -s <size>
-           Determines how large the Tic-Tac-Toe board will be. Defaults to 3
+       -w, --width
+           Specify how many cells wide the board will be.
 
 ## Future Enhanccements
 
