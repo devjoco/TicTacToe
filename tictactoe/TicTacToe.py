@@ -288,31 +288,35 @@ class TicTacToe:
         """
 
         # Construct the patterns for valid col, row, choice
-        validCol = ''.join([chr(x+97) for x in range(self.width)])
-        validRow = ''.join(map(str, [x for x in range(1, self.width+1)]))
-        ansPattern = f'[{validCol}][{validRow}]|[{validRow}][{validCol}]'
+        validCol = '|'.join([chr(x+97) for x in range(self.width)])
+        validRow = '|'.join(map(str, (x for x in range(1, self.width+1))))
+        colFirst = f"(?P<col>{validCol})(?P<row>{validRow})"
+        rowFirst = f"(?P<row>{validRow})(?P<col>{validCol})"
 
         # Get the player's choice
-        # If invalid, update error and return
         msg = f'Player {self.turn.value} move: '
         ans = ''.join(input(msg).strip().split())
-        if not re.fullmatch(ansPattern, ans.lower()):
+
+        # See if colFirst or rowFirst matched
+        colFirstMatch = re.fullmatch(colFirst, ans.lower())
+        rowFirstMatch = re.fullmatch(rowFirst, ans.lower())
+        if colFirstMatch:
+            # colFirst matched
+            col = ord(colFirstMatch.group('col').lower()) - 97
+            row = int(colFirstMatch.group('row')) - 1
+        elif rowFirstMatch:
+            # rowFirst matched
+            col = ord(rowFirstMatch.group('col').lower()) - 97
+            row = int(rowFirstMatch.group('row')) - 1
+        else:
+            # Neither matched, invalid choice
             self.error = self.Error.INVALID
             return
 
-        # Extract the row and col from choice
-        try:
-            # Assume ans in form \d\w
-            r = int(ans[0]) - 1
-            c = ord(ans[1].lower()) - 97
-        except ValueError:
-            # Ans must be in form \w\d
-            r = int(ans[1]) - 1
-            c = ord(ans[0].lower()) - 97
-
-        if not self._spot_open(r, c):
+        # Making it here means choice is within board's dimension
+        if not self._spot_open(row, col):
             # Spot already taken, update error
             self.error = self.Error.TAKEN
         else:
             # Spot isn't taken, apply the valid move
-            self.apply_move(r, c)
+            self.apply_move(row, col)
