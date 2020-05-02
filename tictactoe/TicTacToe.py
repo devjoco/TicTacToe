@@ -12,7 +12,13 @@ class TicTacToe:
         PLAYER = '█'
         COMPUTER = '░'
 
+    class Error(Enum):
+        INVALID = 'Invalid row and column chosen!'
+        TAKEN = 'Spot has already been taken!'
+        NOERR = 'No Error'
+
     def __init__(self, width=3, first='player', multi=False):
+        self.error = self.Error.NOERR
         self.width = width
         self.first = first
         self.random = False
@@ -93,19 +99,25 @@ class TicTacToe:
         Fills the entire cell with the shading for the current player's turn.
         """
 
-        board_repr = ''       # The string repr of the board to be printed
+        # Determine dimensions based on current terminal window height/width
         screen_width = os.get_terminal_size().columns
         screen_height = os.get_terminal_size().lines
-        cell_width = (screen_height - 9 - self.width) // self.width
-        buffer_needed = screen_height - 9 - (cell_width * self.width)
-        buffer_above = buffer_needed // 2
-        buffer_below = buffer_needed - buffer_above
-        row_sep = '┼'.join(['─' * cell_width for _ in range(self.width)])
-        col_head = ' '.join([chr(65+i).center(cell_width)
+        play_height = screen_height - 5
+        cell_height = (play_height - self.width) // self.width
+        cell_top_half = cell_bot_half = cell_height // 2 
+        if cell_height % 2 == 0: cell_top_half -= 1
+        buff_needed = play_height - (cell_height * self.width + self.width)
+        buff_above = buff_needed // 2
+        buff_below = buff_needed - buff_above
+
+        # Start building strings that will make up board
+        board_repr = ''
+        row_sep = '┼'.join(['─' * cell_height for _ in range(self.width)])
+        col_head = ' '.join([chr(65+i).center(cell_height)
                              for i in range(self.width)])
 
         # Add the header showing the column labels
-        board_repr += "\n" * buffer_above
+        board_repr += "Buff_Above\n" * buff_above
         board_repr += ("  " + col_head).center(screen_width) + "\n"
 
         # Add each of the rows, and cell_buff's if necessary
@@ -118,20 +130,21 @@ class TicTacToe:
             # Builds each row from the "leader" char and the cell value
             # Leader char is vertical bar if cell is not first cell
             row_repr = "".join("".join([("" if col == 0 else "│"),
-                                        ("".center(cell_width, cell))])
+                                        ("".center(cell_height, cell))])
                                for col, cell in enumerate(row))
 
             # Add non-labelled, upper layers of row
-            for _ in range(cell_width // 2):
+            for _ in range(cell_top_half):
                 board_repr += ("  " + row_repr).center(screen_width) + '\n'
 
             # Add labelled, middle layer of row
             board_repr += (f"{i+1} " + row_repr).center(screen_width) + '\n'
 
             # Add non-labelled, lower layers of row
-            for _ in range(cell_width // 2):
+            for _ in range(cell_bot_half):
                 board_repr += ("  " + row_repr).center(screen_width) + '\n'
-        board_repr += "\n" * buffer_below
+        board_repr += "Buff_Below\n" * buff_below
+        board_repr += self.error.value
         print(board_repr)
 
     def show_info(self):
@@ -189,21 +202,27 @@ class TicTacToe:
         self.show_board()
 
     def make_move(self):
+        """Call make_player_move or make_computer_move.
+
+        Chosen call depends on the current turn, and opponent type.
+        """
         if self.turn == self.Turn.PLAYER or self.multi:
             self.make_player_move()
         else:
             self.make_computer_move()
 
     def apply_move(self, row, col):
+        """Update the given cell with the value of the current turn."""
+
         self._update_cell(row, col, self.turn.value)
         self.last_move['row'] = row
         self.last_move['col'] = col
         self._advance_turn()
+        self.error = self.Error.NOERR
 
     def make_computer_move(self):
-        """Randomly chooses a spot for the computer to move."""
+        """Randomly choose a spot for the computer to move."""
 
-        print("Computer is thinking...")
         sleep_time = 1 + secrets.randbelow(2)
         time.sleep(sleep_time)
         r, c = secrets.choice([(i, j)
@@ -211,35 +230,40 @@ class TicTacToe:
                                for j in range(self.width)
                                if self.board[i][j] == ' '])
         self.apply_move(r, c)
-        chosen_spot = self.convert_row_col(**self.last_move)
-        print(f'Computer went in {chosen_spot}')
 
     def make_player_move(self):
-        """Collect player move, and updates board, player."""
+        """Collect player move.
 
+        If valid move   -> apply to board
+        if invalid move -> update error msg
+        """
+
+        # Construct the patterns for valid col, row, choice
         validCol = ''.join([chr(x+97) for x in range(self.width)])
         validRow = ''.join(map(str, [x for x in range(1, self.width+1)]))
         ansPattern = f'[{validCol}][{validRow}]|[{validRow}][{validCol}]'
-        msgLead = '\n' if not self.multi else ''
-        msg = f'{msgLead}Player {self.turn.value} move: '
+
+        # Get the player's choice
+        # If invalid, update error and return
+        msg = f'Player {self.turn.value} move: '
         ans = ''.join(input(msg).strip().split())
-        while True:
-            while not re.fullmatch(ansPattern, ans.lower()):
-                if ans != '':
-                    print("Choose a valid row and column.")
-                ans = ''.join(input(msg).strip().split())
-            try:
-                # Assume ans in form \d\w
-                r = int(ans[0]) - 1
-                c = ord(ans[1].lower()) - 97
-            except ValueError:
-                # Ans in form \w\d
-                r = int(ans[1]) - 1
-                c = ord(ans[0].lower()) - 97
-            if not self._spot_open(r, c):
-                print("That spot has already been taken.")
-                ans = ''
-                continue
-            else:
-                break
-        self.apply_move(r, c)
+        if not re.fullmatch(ansPattern, ans.lower()):
+            self.error = self.Error.INVALID
+            return
+
+        # Extract the row and col from choice
+        try:
+            # Assume ans in form \d\w
+            r = int(ans[0]) - 1
+            c = ord(ans[1].lower()) - 97
+        except ValueError:
+            # Ans must be in form \w\d
+            r = int(ans[1]) - 1
+            c = ord(ans[0].lower()) - 97
+
+        if not self._spot_open(r, c):
+            # Spot already taken, update error
+            self.error = self.Error.TAKEN
+        else:
+            # Spot isn't taken, apply the valid move
+            self.apply_move(r, c)
