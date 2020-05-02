@@ -15,7 +15,7 @@ class TicTacToe:
     class Error(Enum):
         INVALID = 'Invalid row and column chosen!'
         TAKEN = 'Spot has already been taken!'
-        NOERR = 'No Error'
+        NOERR = ''
 
     def __init__(self, width=3, first='player', multi=False):
         """Initializes game according to given width, first, & multi params"""
@@ -159,40 +159,51 @@ class TicTacToe:
                              for i in range(self.width)])
 
         # Add buffer above board to keep it centered & full-screen
-        board_repr += "\n" * buff_above
+        board_repr += '\n' * buff_above
 
         # Add the header showing the column labels
-        board_repr += ("  " + col_head).center(screen_width) + "\n"
+        board_repr += '\n' + ("  " + col_head).center(screen_width)
 
         # Add each of the rows, and cell_buff's if necessary
         for i, row in enumerate(self.board):
             # Add row_sep if not first row
             if i != 0:
-                board_repr += ("  " + row_sep).center(screen_width) + "\n"
+                board_repr += "\n" + ("  " + row_sep).center(screen_width)
 
             # Determine row_repr to be used for each layer of row
-            # Builds each row from the "leader" char and the cell value
-            # Leader char is vertical bar if cell is not first cell
+            # Incrementally build row cell-by-cell from cell leader & value
+            # Cell leader is "│" to separate cols if cell is not first cell
             row_repr = "".join("".join([("" if col == 0 else "│"),
                                         ("".center(cell_height, cell))])
                                for col, cell in enumerate(row))
 
             # Add non-labelled, upper layers of row
             for _ in range(cell_top_half):
-                board_repr += ("  " + row_repr).center(screen_width) + '\n'
+                board_repr += '\n' + ("  " + row_repr).center(screen_width)
 
             # Add labelled, middle layer of row
-            board_repr += (f"{i+1} " + row_repr).center(screen_width) + '\n'
+            label = str(i+1)
+            spaces = 2 - len(label)
+            labelled_row = label + (' ' * spaces) + row_repr
+            board_repr += '\n' + (labelled_row).center(screen_width)
 
             # Add non-labelled, lower layers of row
             for _ in range(cell_bot_half):
-                board_repr += ("  " + row_repr).center(screen_width) + '\n'
+                board_repr += '\n' + ("  " + row_repr).center(screen_width)
 
         # Add buffer below board to keep it centered & full-screen
-        board_repr += "\n" * buff_below
+        board_repr += '\n' * buff_below
 
-        # Add error message
-        board_repr += self.error.value
+        # Additional msgs to show if game is not over
+        if self.get_winner() is None:
+
+            # Add error message on PLAYER turn
+            if self.multi or self.turn == self.Turn.PLAYER:
+                board_repr += '\n' + self.error.value
+
+            # If Computer's turn, add "Computer is thinking" msg
+            if not self.multi and self.turn == self.Turn.COMPUTER:
+                board_repr += '\n' + "Computer is thinking. . ."
 
         print(board_repr)
 
@@ -229,9 +240,9 @@ class TicTacToe:
             last_spot = self.convert_row_col(**self.last_move)
             last_repr = ('' if self.last_move['row'] is None else
                          f'Last Move: {last_name} {last_value} {last_spot}')
-        print('Tic Tac Toe'.center(screen_width, '~'))
-        print(info_repr)
-        print(last_repr)
+        title_repr = 'Tic Tac Toe'.center(screen_width, '~')
+        heading_repr = '\n'.join(['', title_repr, info_repr, last_repr])
+        print(heading_repr, end='')
 
     def show_game(self):
         """Update screen by calling show_info and then show_board"""
