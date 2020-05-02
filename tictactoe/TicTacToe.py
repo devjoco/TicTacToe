@@ -6,7 +6,7 @@ from enum import Enum
 
 
 class TicTacToe:
-    """Represents a game of tic-tac-toe."""
+    """Represents a game of tic-tac-toe"""
 
     class Turn(Enum):
         PLAYER = '█'
@@ -18,6 +18,7 @@ class TicTacToe:
         NOERR = 'No Error'
 
     def __init__(self, width=3, first='player', multi=False):
+        """Initializes game according to given width, first, & multi params"""
         self.error = self.Error.NOERR
         self.width = width
         self.first = first
@@ -34,24 +35,55 @@ class TicTacToe:
             self.random = True
 
     def _spot_open(self, r, c):
+        """Return True if given cell is not taken, False otherwise"""
+
         return self.board[r][c] == ' '
 
     def _update_cell(self, r, c, val):
+        """Update given cell's value with given val"""
+
         self.board[r][c] = val
 
     def _advance_turn(self):
+        """Advances turn from PLAYER to COMPUTER, and vice-versa"""
+
         self.turn = (self.Turn.PLAYER if self.turn.name == 'COMPUTER' else
                      self.Turn.COMPUTER)
 
     def _reset_board(self):
+        """Clears all cell values in the board"""
+
         self.board = [[' ' for _ in range(self.width)]
                       for _ in range(self.width)]
 
     @staticmethod
     def convert_row_col(row, col):
+        """Returns row and col in 1-based alphanumeric grid notation
+
+        Returns the alphabetic representation of the column first, followed
+        by the numerical, 1-based representation of the row. 
+
+        Examples:
+            row=0, col=0 -> A1      row=0, col=1 -> B1
+            row=1, col=0 -> A2      row=1, col=1 -> B2 . . .
+            row=2, col=0 -> A3  .   row=2, col=1 -> B3
+                                .
+                                .
+        """
+
         return chr(col + ord('A')) + str(row + 1)
 
     def get_winner(self):
+        """Check all possible wins returning winner if found
+        
+        If win is found:
+            Returns symbol in the winning streak
+
+        If no win found:
+            If more moves possible -> Returns None
+            If no more moves       -> Returns 'T'
+        """
+
         # TODO: Implement more efficient check of win, perhaps using last move
         # Check horizontal wins
         for r in range(self.width):
@@ -94,18 +126,28 @@ class TicTacToe:
         return None
 
     def show_board(self):
-        """Displays the current state of the board centered on the screen.
+        """Display current state of the board centered on the screen
 
-        Fills the entire cell with the shading for the current player's turn.
+        Makes the cells as large as they can be while still fitting on screen.
+        Fills the entire cell with the shading for the cell's value.
         """
 
         # Determine dimensions based on current terminal window height/width
         screen_width = os.get_terminal_size().columns
         screen_height = os.get_terminal_size().lines
+
+        # play_height is screen minus lines needed for info, error, prompt
         play_height = screen_height - 5
+
+        # Determine max cell_height that will fit in play_height
         cell_height = (play_height - self.width) // self.width
-        cell_top_half = cell_bot_half = cell_height // 2 
-        if cell_height % 2 == 0: cell_top_half -= 1
+
+        # Determine how many layers of a row before and after labelled layer
+        cell_top_half = cell_bot_half = cell_height // 2
+        if cell_height % 2 == 0:
+            cell_top_half -= 1
+
+        # Determine buffer needed to keep game full-screen and board centered
         buff_needed = play_height - (cell_height * self.width + self.width)
         buff_above = buff_needed // 2
         buff_below = buff_needed - buff_above
@@ -116,8 +158,10 @@ class TicTacToe:
         col_head = ' '.join([chr(65+i).center(cell_height)
                              for i in range(self.width)])
 
+        # Add buffer above board to keep it centered & full-screen
+        board_repr += "\n" * buff_above
+
         # Add the header showing the column labels
-        board_repr += "Buff_Above\n" * buff_above
         board_repr += ("  " + col_head).center(screen_width) + "\n"
 
         # Add each of the rows, and cell_buff's if necessary
@@ -143,12 +187,17 @@ class TicTacToe:
             # Add non-labelled, lower layers of row
             for _ in range(cell_bot_half):
                 board_repr += ("  " + row_repr).center(screen_width) + '\n'
-        board_repr += "Buff_Below\n" * buff_below
+
+        # Add buffer below board to keep it centered & full-screen
+        board_repr += "\n" * buff_below
+
+        # Add error message
         board_repr += self.error.value
+
         print(board_repr)
 
     def show_info(self):
-        """Prints out a heading which will show the games info.
+        """Print out game information
 
         Takes up three lines of the screen and includes:
             - Whether it is against a computer or another player
@@ -185,24 +234,13 @@ class TicTacToe:
         print(last_repr)
 
     def show_game(self):
-        """Update the terminal screen with the current state of the game.
-
-        Elements of the screen:
-        Title/Header: Name of game, dimensions, solo vs multi, first(random?)
-        Last Move: Show's who went last and in what spot. Empty line if N/A
-        Play Area: State of board w/ row/col labels
-        Error Msg: Display if user chose invalid/taken spot. Empty if N/A
-
-        Title/Header and Last Move takes up two lines to the top, Error Msg &
-        prompt for next move takes two lines on bottom, Play Area takes up
-        remaining lines in between.
-        """
+        """Update screen by calling show_info and then show_board"""
 
         self.show_info()
         self.show_board()
 
     def make_move(self):
-        """Call make_player_move or make_computer_move.
+        """Call make_player_move or make_computer_move
 
         Chosen call depends on the current turn, and opponent type.
         """
@@ -212,7 +250,7 @@ class TicTacToe:
             self.make_computer_move()
 
     def apply_move(self, row, col):
-        """Update the given cell with the value of the current turn."""
+        """Update the given cell with the value of the current turn"""
 
         self._update_cell(row, col, self.turn.value)
         self.last_move['row'] = row
@@ -221,7 +259,7 @@ class TicTacToe:
         self.error = self.Error.NOERR
 
     def make_computer_move(self):
-        """Randomly choose a spot for the computer to move."""
+        """Randomly choose a spot for the computer to move"""
 
         sleep_time = 1 + secrets.randbelow(2)
         time.sleep(sleep_time)
@@ -232,7 +270,7 @@ class TicTacToe:
         self.apply_move(r, c)
 
     def make_player_move(self):
-        """Collect player move.
+        """Collect player move
 
         If valid move   -> apply to board
         if invalid move -> update error msg
