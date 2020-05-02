@@ -61,7 +61,7 @@ class TicTacToe:
         """Returns row and col in 1-based alphanumeric grid notation
 
         Returns the alphabetic representation of the column first, followed
-        by the numerical, 1-based representation of the row. 
+        by the numerical, 1-based representation of the row.
 
         Examples:
             row=0, col=0 -> A1      row=0, col=1 -> B1
@@ -75,7 +75,7 @@ class TicTacToe:
 
     def get_winner(self):
         """Check all possible wins returning winner if found
-        
+
         If win is found:
             Returns symbol in the winning streak
 
