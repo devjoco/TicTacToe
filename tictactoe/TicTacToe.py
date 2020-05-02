@@ -217,7 +217,7 @@ class TicTacToe:
 
         Example:
         ~~~~~~~~~~~~~~~~~~~~~~~~~ Tic Tac Toe ~~~~~~~~~~~~~~~~~~~~~~~~~
-        First Move: Player █       3x3 Board         Opponent: Computer
+        First Turn: Player █       3x3 Board         Opponent: Computer
         Last Move: Computer ░ A3
         """
 
@@ -225,8 +225,8 @@ class TicTacToe:
         opponent = 'Human' if self.multi else 'Computer'
         first_turn = (self.Turn.PLAYER if self.first == 'player' else
                       self.Turn.COMPUTER)
-        first_name = first_turn.name.capitalize()
-        first_repr = f'First Move: {first_name} {first_turn.value}'
+        first_name = 'Player' if self.multi else first_turn.name.capitalize()
+        first_repr = f'First Turn: {first_name} {first_turn.value}'
         oppon_repr = f'Opponent: {opponent}'
         dimen_width = screen_width - sum(map(len, [first_repr, oppon_repr]))
         dimen_repr = f'{self.width}x{self.width} Board'.center(dimen_width)
@@ -235,7 +235,7 @@ class TicTacToe:
         if self.last_move['row'] is not None:
             last_turn = (self.Turn.PLAYER if self.turn == self.Turn.COMPUTER
                          else self.Turn.COMPUTER)
-            last_name = last_turn.name.capitalize()
+            last_name = 'Player' if self.multi else last_turn.name.capitalize()
             last_value = last_turn.value
             last_spot = self.convert_row_col(**self.last_move)
             last_repr = ('' if self.last_move['row'] is None else
